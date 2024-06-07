@@ -13,17 +13,17 @@ username=$(cat "$script_dir/../conf/username.txt")
 
 if [ $# -lt 3 ]
 then
-        echo "Using default value ${WRITESTR} for string to write"
-        if [ $# -lt 1 ]
-        then
-                echo "Using default value ${NUMFILES} for number of files to write"
-        else
-                NUMFILES=$1
-        fi      
-else
+    echo "Using default value ${WRITESTR} for string to write"
+    if [ $# -lt 1 ]
+    then
+        echo "Using default value ${NUMFILES} for number of files to write"
+    else
         NUMFILES=$1
-        WRITESTR=$2
-        WRITEDIR=/tmp/aeld-data/$3
+    fi    
+else
+    NUMFILES=$1
+    WRITESTR=$2
+    WRITEDIR=/tmp/aeld-data/$3
 fi
 
 MATCHSTR="The number of files are ${NUMFILES} and the number of matching lines are ${NUMFILES}"
@@ -37,40 +37,11 @@ assignment=$(cat "$script_dir/../conf/assignment.txt")
 
 if [ $assignment != 'assignment1' ]
 then
-        mkdir -p "$WRITEDIR"
+    mkdir -p "$WRITEDIR"
 
-        # The WRITEDIR is in quotes because if the directory path consists of spaces, then variable substitution will fail.
-        # The quotes signify that the entire string in WRITEDIR is a single string.
-        # This issue can also be resolved by using double square brackets i.e [[ ]] instead of using single square bracket in if condition.
-        if [ -d "$WRITEDIR" ]
-        then
-                echo "$WRITEDIR created"
-        else
-                exit 1
-        fi
-fi
-
-# Compile the writer application
-echo "Removing the old writer utility and compiling as a native application"
-make clean
-make
-
-for i in $( seq 1 $NUMFILES)
-do
-        ./writer "$WRITEDIR/${username}$i.txt" "$WRITESTR"
-done
-
-OUTPUTSTRING=$(./finder-app/finder.sh "$WRITEDIR" "$WRITESTR")
-
-# remove temporary directories
-rm -rf /tmp/aeld-data
-
-set +e
-echo ${OUTPUTSTRING} | grep "${MATCHSTR}"
-if [ $? -eq 0 ]; then
-        echo "success"
-        exit 0
-else
-        echo "failed: expected  ${MATCHSTR} in ${OUTPUTSTRING} but instead found"
-        exit 1
-fi
+    # The WRITEDIR is in quotes because if the directory path consists of spaces, then variable substitution will fail.
+    # The quotes signify that the entire string in WRITEDIR is a single string.
+    # This issue can also be resolved by using double square brackets i.e [[ ]] instead of using single square bracket in if condition.
+    if [ -d "$WRITEDIR" ]
+    then
+        echo "$WRITEDI

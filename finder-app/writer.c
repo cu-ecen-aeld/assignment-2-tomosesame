@@ -1,41 +1,44 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <syslog.h>
-#include <errno.h>
 #include <string.h>
+#include <errno.h>
 
 int main(int argc, char *argv[]) {
-    // Check for correct number of arguments
+    openlog("writer", LOG_PID | LOG_CONS, LOG_USER);
+
+    // 檢查參數數量是否正確
     if (argc != 3) {
         fprintf(stderr, "Usage: %s <file> <string>\n", argv[0]);
         syslog(LOG_ERR, "Invalid number of arguments: %d", argc);
-        return 1;
+        syslog(LOG_ERR, "Usage: %s <file_path> <string>", argv[0]);
+        exit(EXIT_FAILURE);
     }
 
-    // Get file and string from arguments
+    // 獲取文件路徑和要寫入的字符串
     const char *file_path = argv[1];
     const char *string_to_write = argv[2];
 
-    // Open the log
-    openlog("writer", LOG_PID | LOG_CONS, LOG_USER);
-    
-    // Open file
+    // 打開文件
     FILE *file = fopen(file_path, "w");
-    if (file == NULL) {
+    if (!file) {
         fprintf(stderr, "Error opening file: %s\n", strerror(errno));
         syslog(LOG_ERR, "Error opening file %s: %s", file_path, strerror(errno));
-        return 1;
+        exit(EXIT_FAILURE);
     }
 
-    // Write string to file
+    // 寫入字符串到文件
     fprintf(file, "%s", string_to_write);
     syslog(LOG_DEBUG, "Writing %s to %s", string_to_write, file_path);
 
-    // Close file
-    fclose(file);
+    // 關閉文件
+    if (fclose(file) != 0) {
+        syslog(LOG_ERR, "Failed to close file %s: %s", file_path, strerror(errno));
+        exit(EXIT_FAILURE);
+    }
 
-    // Close the log
+    // 關閉日誌
     closelog();
 
-    return 0;
+    return EXIT_SUCCESS;
 }
